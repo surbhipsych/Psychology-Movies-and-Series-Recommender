@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Psychology Movies and Series Recommender</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --main: #ae53e1;
+      --accent: #df53f7;
+      --bg: #24013a;
+      --contrast: #fff1ff;
+      --glow-text: 0 0 5px #bf53f766, 0 0 10px #df53f7aa;
+      --glow-card: 0 0 8px 2px #bf53f788;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(ellipse at top, var(--bg) 0%, #140022 100%);
+      font-family: 'Poppins', Arial, sans-serif;
+      color: var(--contrast);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .section-title {
+      font-size: 2em;
+      font-weight: 900;
+      margin: 30px 0 12px 0;
+      color: var(--main);
+      padding: 5px 28px;
+      background: rgba(190, 72, 255, 0.14);
+      text-shadow: var(--glow-text);
+      border-radius: 12px;
+      text-align: center;
+    }
+    .carousel-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100vw;
+      max-width: 440px;
+      margin-bottom: 22px;
+      padding: 0 6px;
+    }
+    .flashcard {
+      max-width: 340px;
+      margin: 0 auto 15px auto;
+      border-radius: 22px;
+      background: linear-gradient(125deg, var(--main) 60%, var(--accent) 100%);
+      box-shadow: var(--glow-card);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .flashcard:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 20px var(--accent);
+    }
+    .movie-title {
+      font-size: 1.2em;
+      font-weight: 900;
+      margin: 8px 0;
+      text-shadow: var(--glow-text);
+      text-align: center;
+    }
+    .movie-topic {
+      font-size: 0.95em;
+      margin-bottom: 10px;
+      color: var(--contrast);
+      text-align: center;
+    }
+    .action-row {
+      display: flex;
+      gap: 22px;
+      margin-bottom: 10px;
+    }
+    button.icon-btn {
+      background: none;
+      border: none;
+      font-size: 2em;
+      cursor: pointer;
+      border-radius: 50%;
+      color: #fff8;
+      width: 46px;
+      height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.18s, color 0.22s, transform 0.16s;
+      filter: drop-shadow(0 0 6px #d753f7aa);
+    }
+    button.icon-btn.like.active { color: #ffd900; background: #ffd90040; }
+    button.icon-btn.dislike.active { color: #ff4d4d; background: #ff4d4d40; }
+    button.icon-btn.dontknow.active { color: #00e5ff; background: #00e5ff40; }
+    .done-indicator {
+      font-size: 1.05em;
+      font-weight: 900;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .done-indicator.liked { color: #ffd900; }
+    .done-indicator.disliked { color: #ff4d4d; }
+    .done-indicator.dontknow { color: #00e5ff; }
+    .nav-row {
+      display: flex;
+      gap: 30px;
+      margin-bottom: 12px;
+    }
+    button.nav-btn {
+      font-size: 1em;
+      padding: 9px 20px;
+      border-radius: 18px;
+      border: none;
+      background: linear-gradient(90deg, var(--main), var(--accent));
+      color: #2e004a;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--accent);
+    }
+    button.nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .downloadgroup {
+      margin: 14px auto;
+      display: flex;
+      gap: 12px;
+    }
+    button.clear-btn {
+      background: linear-gradient(90deg, var(--main), var(--accent));
+      border: none;
+      color: #2c0046;
+      font-weight: 900;
+      border-radius: 20px;
+      font-size: 1em;
+      padding: 10px 20px;
+      cursor: pointer;
+      box-shadow: 0 0 12px var(--accent);
+    }
+    .mentries-section {
+      background: rgba(174, 83, 225, 0.12);
+      border-radius: 18px;
+      box-shadow: 0 0 10px #d854ff66;
+      padding: 15px 10px;
+      width: 95vw;
+      max-width: 455px;
+      margin-bottom: 30px;
+    }
+    .mentries-title {
+      font-size: 1.1em;
+      font-weight: 900;
+      color: var(--main);
+      text-shadow: var(--glow-text);
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .entries-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 8px;
+      justify-content: center;
+    }
+    .entry-item {
+      border-radius: 14px;
+      padding: 7px 14px;
+      font-size: 0.9em;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .entry-item:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 12px var(--accent);
+    }
+    .entry-item.liked { background: #fff4b0; color: #6b5200; border-left: 6px solid #ffd900; }
+    .entry-item.disliked { background: #ffcccc; color: #660000; border-left: 6px solid #ff4d4d; }
+    .entry-item.dontknow { background: #c8f8ff; color: #004c66; border-left: 6px solid #00e5ff; }
+    footer {
+      margin: 20px 0;
+      font-size: 0.85em;
+      color: #bbb;
+      text-align: center;
+      text-shadow: 0 0 6px #bf53f7aa;
+    }
+  </style>
+</head>
+<body>
+  <div class="section-title">Psychology Movies and Series Recommender</div>
+
+  <main class="carousel-container">
+    <article class="flashcard" id="movie-card">
+      <h2 id="movie-title" class="movie-title"></h2>
+      <p id="movie-topic" class="movie-topic"></p>
+      <div class="action-row">
+        <button class="icon-btn like" id="like-btn">&#128077;</button>
+        <button class="icon-btn dislike" id="dislike-btn">&#128078;</button>
+        <button class="icon-btn dontknow" id="dontknow-btn">&#129300;</button>
+      </div>
+      <p class="done-indicator" id="done-indicator"></p>
+    </article>
+    <nav class="nav-row">
+      <button class="nav-btn" id="back-btn">&#8592; Back</button>
+      <button class="nav-btn" id="next-btn">Next &#8594;</button>
+    </nav>
+    <section class="downloadgroup">
+      <button class="clear-btn" id="clear-btn">Clear All</button>
+    </section>
+  </main>
+
+  <section class="mentries-section">
+    <h3 class="mentries-title">Your Movie Entries</h3>
+    <p id="counts" style="text-align:center; font-weight:900; margin-bottom:10px;"></p>
+    <div class="entries-list" id="entries-list"></div>
+  </section>
+
+  <footer>
+    © Surbhi Sharma — @surbhipsychtutor
+  </footer>
+
+   <script>
+    // Movies data (full combined list)
+    const movies = [
+      {title:"Psycho", topic:"Dissociative Identity Disorder"},
+      {title:"One Flew Over the Cuckoo's Nest", topic:"Antisocial Personality Disorder"},
+      {title:"The Shining", topic:"Psychosis, Alcohol Use Disorder"},
+      {title:"Ordinary People", topic:"Depression & PTSD"},
+      {title:"Rain Man", topic:"Autism & Savant Syndrome"},
+      {title:"The Silence of the Lambs", topic:"Psychopathy & Criminology"},
+      {title:"What's Eating Gilbert Grape", topic:"Intellectual Disability, Autism"},
+      {title:"Forrest Gump", topic:"Intellectual Disability, Autism"},
+      {title:"Se7en", topic:"Psychopathy, Nihilism, Obsession"},
+      {title:"Primal Fear", topic:"DID & Sociopathy"},
+      {title:"Good Will Hunting", topic:"Therapeutic relationship, Trauma"},
+      {title:"As Good as It Gets", topic:"OCD"},
+      {title:"The Truman Show", topic:"Delusional & Anxiety disorder"},
+      {title:"Fight Club", topic:"Dissociative Identity Disorder"},
+      {title:"The Sixth Sense", topic:"Grief & Trauma"},
+      {title:"The Talented Mr. Ripley", topic:"Imposter syndrome, Narcissism"},
+      {title:"Analyze This", topic:"Panic disorder"},
+      {title:"Girl, Interrupted", topic:"Borderline Personality Disorder"},
+      {title:"Memento", topic:"Anterograde amnesia"},
+      {title:"American Psycho", topic:"NPD & Psychopathy"},
+      {title:"Requiem for a Dream", topic:"Addiction & Psychosis"},
+      {title:"A Beautiful Mind", topic:"Schizophrenia"},
+      {title:"Donnie Darko", topic:"Schizophrenia & Paranoia"},
+      {title:"Mulholland Drive", topic:"Delusion, Dissociation, & Grief"},
+      {title:"I Am Sam", topic:"Intellectual disability"},
+      {title:"The Machinist", topic:"Insomnia, Delusion & Guilt"},
+      {title:"The Aviator", topic:"OCD"},
+      {title:"Little Miss Sunshine", topic:"Depression & Suicide"},
+      {title:"The Hurt Locker", topic:"PTSD & Addiction"},
+      {title:"The Dark Knight", topic:"Id, Ego, Super Ego"},
+      {title:"The Soloist", topic:"Schizophrenia"},
+      {title:"Shutter Island", topic:"Delusional disorder & Psychosis"},
+      {title:"Inception", topic:"Dreams, Trauma & Guilt"},
+      {title:"Black Swan", topic:"OCD, Paranoia & Psychosis"},
+      {title:"Take Shelter", topic:"Paranoid Schizophrenia"},
+      {title:"Melancholia", topic:"Clinical Depression"},
+      {title:"The Perks of Being a Wallflower", topic:"PTSD & Depression"},
+      {title:"Silver Linings Playbook", topic:"Bipolar Disorder"},
+      {title:"Still Alice", topic:"Early-onset Alzheimer's disease"},
+      {title:"Whiplash", topic:"Obsession & Anxiety"},
+      {title:"Inside Out", topic:"Emotional regulation, Depression"},
+      {title:"Mr. Robot (TV)", topic:"DID & Social anxiety"},
+      {title:"Split", topic:"Dissociative Identity Disorder"},
+      {title:"Manchester by the Sea", topic:"Grief & PTSD"},
+      {title:"Get Out", topic:"Manipulation & Trauma"},
+      {title:"Mindhunter (TV)", topic:"Psychopathy & Criminology"},
+      {title:"The Haunting of Hill House (TV)", topic:"PTSD & Grief"},
+      {title:"You (TV)", topic:"Obsessive, Psychopathy & NPD"},
+      {title:"The Perfection", topic:"PTSD & Abuse"},
+      {title:"Hereditary", topic:"Grief & Generational trauma"},
+      {title:"Joker", topic:"Psychosis, Depression, Delusions"},
+      {title:"Euphoria (TV)", topic:"Addiction & Bipolar Disorder"},
+      {title:"The Father", topic:"Dementia & Memory loss"},
+      {title:"The Night House", topic:"Grief, Trauma, Dissociation"},
+      {title:"The Woman in the Window", topic:"Agoraphobia, PTSD"},
+      {title:"Nightmare Alley", topic:"Antisocial Personality, Trauma"},
+      {title:"The Black Phone", topic:"Trauma & Resilience"},
+      {title:"The Patient (TV)", topic:"Grief, Trauma & Psychotherapy"},
+      {title:"The Royal Hotel", topic:"Trauma, Paranoia, Acute Stress"},
+      {title:"Saltburn", topic:"Narcissism, Manipulation"},
+      {title:"Fair Play", topic:"Jealousy & Power dynamics"},
+      {title:"The Covenant", topic:"PTSD & Survival guilt"},
+      {title:"Leave the World Behind", topic:"Paranoia & Mass hysteria"},
+      {title:"A Different Man", topic:"Identity & Body dysmorphia"},
+      {title:"Speak No Evil", topic:"Sociopathy, Psychological abuse"},
+      {title:"Heretic", topic:"Manipulation & Isolation"},
+      {title:"Constellation (TV)", topic:"Dissociation, Manipulation"},
+      {title:"Black Phone 2", topic:"Trauma, Survivor's Guilt"},
+      {title:"Soulmate", topic:"Dysfunctional Grief, Loneliness"},
+      {title:"Gupt", topic:"DID & Obsession"},
+      {title:"Kaun?", topic:"Paranoia & Delusion"},
+      {title:"Bhool Bhulaiyaa", topic:"Dissociative Identity Disorder"},
+      {title:"Taare Zameen Par", topic:"Dyslexia, Childhood Trauma"},
+      {title:"Manorama Six Feet Under", topic:"Manipulation, Obsession"},
+      {title:"Karthik Calling Karthik", topic:"Schizophrenia & Anxiety"},
+      {title:"My Name is Khan", topic:"Asperger's Syndrome (Autism)"},
+      {title:"Anjaana Anjaani", topic:"Depression, Suicide Ideation"},
+      {title:"Kahaani", topic:"DID, Vengeance"},
+      {title:"Barfi", topic:"Autism / Intellectual Disability"},
+      {title:"Queen", topic:"Social Anxiety, Low Self-worth"},
+      {title:"Hasee Toh Phasee", topic:"Mania Spectrum, Anxiety"},
+      {title:"Tamasha", topic:"Identity Crisis, Suppression"},
+      {title:"Rahasya", topic:"Trauma, Crime, Grief"},
+      {title:"Drishyam", topic:"Psychological Manipulation"},
+      {title:"Phobia", topic:"Agoraphobia & Paranoia"},
+      {title:"Raman Raghav 2.0", topic:"Psychopathy & Obsession"},
+      {title:"Dear Zindagi", topic:"Therapy, Anxiety, Healing"},
+      {title:"A Death in the Gunj", topic:"Depression, Bullying"},
+      {title:"Kapoor & Sons", topic:"Hidden Depression"},
+      {title:"Andhadhun", topic:"Psychopathy & Deception"},
+      {title:"Tumbbad", topic:"Greed & Obsession"},
+      {title:"Judgementall Hai Kya", topic:"Psychosis & Delusional disorder"},
+      {title:"Chhichhore", topic:"Depression, Suicide Prevention"},
+      {title:"706", topic:"Guilt, Psychological Trauma"},
+      {title:"The Girl on the Train", topic:"Amnesia, Trauma & Alcoholism"},
+      {title:"Haseen Dillruba", topic:"Manipulation, Toxic relationship"},
+      {title:"Sanak", topic:"PTSD & Action"},
+      {title:"Silence... Can You Hear It?", topic:"Grief, Crime, Trauma"},
+      {title:"Chup: Revenge of the Artist", topic:"Psychopathy & Obsession"},
+      {title:"Anek", topic:"Identity crisis & Social alienation"},
+      {title:"Anamika", topic:"Identity crisis & Amnesia"},
+      {title:"Blurr", topic:"Grief, Trauma, Paranoia"},
+      {title:"Darlings", topic:"Domestic Abuse Trauma, Anxiety"},
+      {title:"Merry Christmas", topic:"Trauma, Suspense, Paranoia"},
+      {title:"Despatch", topic:"Crime, Paranoia, Moral Anxiety"}
+    ].map(m => ({...m, status:null, added:false}));
+
+    function shuffle(array) {
+      let currentIndex = array.length, randomIndex;
+      while (currentIndex !== 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+      }
+    }
+    shuffle(movies);
+
+    const movieTitle = document.getElementById('movie-title');
+    const movieTopic = document.getElementById('movie-topic');
+    const likeBtn = document.getElementById('like-btn');
+    const dislikeBtn = document.getElementById('dislike-btn');
+    const dontknowBtn = document.getElementById('dontknow-btn');
+    const doneIndicator = document.getElementById('done-indicator');
+    const backBtn = document.getElementById('back-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    const entriesList = document.getElementById('entries-list');
+    const countsEl = document.getElementById('counts');
+
+    let idx = 0;
+
+    function loadState() {
+      const saved = localStorage.getItem("movieChoices");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        movies.forEach((m, i) => {
+          if (parsed[i]) {
+            m.status = parsed[i].status;
+            m.added = parsed[i].added;
+          }
+        });
+      }
+    }
+    function saveState() {
+      localStorage.setItem("movieChoices", JSON.stringify(movies));
+    }
+
+    function updateCardView() {
+      const m = movies[idx];
+      movieTitle.textContent = m.title;
+      movieTopic.textContent = m.topic;
+
+      likeBtn.classList.toggle('active', m.status === "liked");
+      dislikeBtn.classList.toggle('active', m.status === "disliked");
+      dontknowBtn.classList.toggle('active', m.status === "dontknow");
+
+      doneIndicator.textContent = 
+        m.status === "liked" ? "Liked 💜" :
+        m.status === "disliked" ? "Disliked 😶" :
+        m.status === "dontknow" ? "Don't know 🤔" : "";
+
+      doneIndicator.className = "done-indicator";
+      if (m.status) doneIndicator.classList.add(m.status);
+
+      backBtn.disabled = idx === 0;
+      nextBtn.disabled = idx === movies.length - 1;
+
+      updateEntries();
+      saveState();
+    }
+
+    function markEntry(status) {
+      movies[idx].status = status;
+      movies[idx].added = true;
+      updateCardView();
+    }
+
+    likeBtn.onclick = () => markEntry("liked");
+    dislikeBtn.onclick = () => markEntry("disliked");
+    dontknowBtn.onclick = () => markEntry("dontknow");
+    nextBtn.onclick = () => { idx = Math.min(idx + 1, movies.length - 1); updateCardView(); };
+    backBtn.onclick = () => { idx = Math.max(idx - 1, 0); updateCardView(); };
+
+    function updateEntries() {
+      const likedCount = movies.filter(m => m.status === "liked").length;
+      const dislikedCount = movies.filter(m => m.status === "disliked").length;
+      const dontKnowCount = movies.filter(m => m.status === "dontknow").length;
+      const totalCount = likedCount + dislikedCount + dontKnowCount;
+
+      countsEl.innerHTML =
+        `<span style="color:#ffd900">Liked: ${likedCount}</span> | 
+         <span style="color:#ff4d4d">Disliked: ${dislikedCount}</span> | 
+         <span style="color:#00e5ff">Don't know: ${dontKnowCount}</span> | 
+         <span style="color:#fff">Total marked: ${totalCount}</span>`;
+
+      entriesList.innerHTML = movies
+        .filter(m => m.added)
+        .map(m => `
+          <div class="entry-item ${m.status || ''}">
+            ${m.title} — ${m.topic} ${
+              m.status === "liked" ? "💜" : 
+              m.status === "disliked" ? "😶" : 
+              m.status === "dontknow" ? "🤔" : ""
+            }
+          </div>
+        `).join('');
+    }
+
+    clearBtn.onclick = () => {
+      if (!confirm("Clear all your saved choices?")) return;
+      movies.forEach(m => { m.status = null; m.added = false; });
+      localStorage.removeItem("movieChoices");
+      idx = 0;
+      updateCardView();
+    };
+
+    loadState();
+    updateCardView();
+  </script>
+</body>
+</html>
